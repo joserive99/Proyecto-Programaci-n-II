@@ -13,7 +13,7 @@ public class Database {
     public Database() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://localhost/Tornedos", "root", "Admin$1234");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/Torneos", "root", "Admin$1234");
         } catch (ClassNotFoundException | SQLException ex) {
             System.getLogger(Database.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
