@@ -19,21 +19,49 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
-        LoginDAO dao = new LoginDAO();
-        Usuario usuario = new Usuario();
-        
-        usuario.setCorreo(request.getParameter("Correo"));
-        usuario.setContrasena(request.getParameter("Contrasena"));
-                
-        usuario = dao.validateLogin(usuario);
-        
-        if (usuario!= null){
-            response.sendRedirect("main.jsp");
-        }
-        else
-        {
-            response.sendRedirect("error.jsp");
-        }
-    }
+     String accion = request.getParameter("accion");
 
+     LoginDAO dao = new LoginDAO();
+
+        if ("registrar".equals(accion)) {
+
+            Usuario usuario = new Usuario();
+
+            usuario.setNombre(request.getParameter("Nombre"));
+            usuario.setCorreo(request.getParameter("Correo"));
+            usuario.setContrasena(request.getParameter("Contrasena"));
+
+            boolean resultado = dao.RegistrarUsuario(usuario);
+
+            if (resultado) 
+            {
+                response.sendRedirect("Login.jsp");
+            } 
+            else 
+            {
+                response.sendRedirect("Registrarse.jsp?error=correoExiste");
+            }
+
+        }
+        
+        else if ("login".equals(accion)) {
+
+            Usuario usuario = new Usuario();
+
+            usuario.setCorreo(request.getParameter("Correo"));
+            usuario.setContrasena(request.getParameter("Contrasena"));
+
+            usuario = dao.validateLogin(usuario);
+
+            if (usuario != null) 
+            {
+                response.sendRedirect("main.jsp");
+            } else 
+            {
+                response.sendRedirect("Login.jsp?error=1");
+            }
+
+        }
+
+     }
 }
