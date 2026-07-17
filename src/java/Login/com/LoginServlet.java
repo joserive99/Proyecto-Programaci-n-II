@@ -55,10 +55,10 @@ public class LoginServlet extends HttpServlet {
 
             if (usuario != null) 
             {
-                response.sendRedirect("main.jsp");
+                 response.sendRedirect("Equipos.jsp");
             } else 
             {
-                response.sendRedirect("Login.jsp?error=1");
+                response.sendRedirect("error.jsp");
             }
 
         }
