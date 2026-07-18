@@ -12,7 +12,15 @@ SELECT * FROM Usuario;
 SELECT * FROM Equipo;
 
 INSERT INTO Usuario (Nombre, Correo, Contrasena)
-VALUES ('Daniela Jimenez', 'daniela@gmail.com', 'admin1234');
+VALUES ('Daniela Jimenez', 'daniela@gmail.com', 'admin1234'),
+ ('Administrador de torneos', 'admin@torneos.com', 'admin1234');    # 16
+
+
+ALTER TABLE Usuario													# 19-23
+ADD COLUMN Rol ENUM('ADMIN','USUARIO') NOT NULL DEFAULT 'USUARIO';
+UPDATE Usuario
+SET Rol='ADMIN'
+WHERE Correo='admin@torneos.com';
 
 CREATE TABLE Equipo (
     id_equipo INT AUTO_INCREMENT PRIMARY KEY,
@@ -48,7 +56,7 @@ VALUES
 ('Uruguay de Coronado', 'uruguay_coronado.png', '11111126', 1),
 ('Municipal Grecia', 'municipal_grecia.png', '11111117', 1);
 SELECT * FROM Equipo;
-
+DESCRIBE Equipo;
 CREATE TABLE Torneo(
 	  torneo_id INT AUTO_INCREMENT PRIMARY KEY,
 	nombre varchar(100) not null,

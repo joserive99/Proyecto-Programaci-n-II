@@ -1,22 +1,16 @@
 <%-- 
-    Document   : Equipos
-    Created on : 15 jul 2026, 3:04:11 p. m.
-    Author     : USER
+    Document   : Usuarios
+    Created on : 18 jul 2026, 2:53:30 p. m.
+    Author     : Jose
 --%>
 <%@page import="java.util.List"%>
-<%@page import="Equipo.com.Equipo"%>
+<%@page import="Login.com.Usuario"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<%
-    if (session.getAttribute("usuario") == null) {
-        response.sendRedirect("Login.jsp");
-        return;
-    }
-%>
 <html lang="es">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Equipos Registrados</title>
+    <title>Usuarios Registrados</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
@@ -34,47 +28,49 @@
     <div class="container">
         <div class="bg-white p-4 rounded shadow-sm">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="mb-0 fw-bold" style="color: #4a4a4a;">Equipos Registrados</h3>
-                <a href="RegistrarEquipo.jsp" class="btn btn-success px-4">+ Nuevo Equipo</a>
+                <h3 class="mb-0 fw-bold" style="color: #4a4a4a;">Usuarios Registrados</h3>
+                <a href="Registrarse.jsp" class="btn btn-primary px-4">+ Nuevo Usuario</a>
             </div>
 
             <div class="table-responsive">
                 <table class="table table-hover align-middle border">
                     <thead class="table-light">
                         <tr>
-                            <th scope="col" class="text-center">Escudo</th>
+                            <th scope="col" class="text-center">#</th>
                             <th scope="col">Nombre</th>
-                            <th scope="col">Teléfono</th>
+                            <th scope="col">Correo</th>
+                            <th scope="col">Rol</th> <!-- Nueva columna de Rol -->
                             <th scope="col" class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <% 
-                            List<Equipo> listaEquipos = (List<Equipo>) request.getAttribute("listaEquipos");
+                            List<Usuario> listaUsuarios = (List<Usuario>) request.getAttribute("usuarios");
                             
-                            if (listaEquipos != null && !listaEquipos.isEmpty()) {
-                                for (Equipo equipo : listaEquipos) { 
+                            if (listaUsuarios != null && !listaUsuarios.isEmpty()) {
+                                int contador = 1;
+                                for (Usuario usuario : listaUsuarios) { 
                         %>
                                     <tr>
+                                        <td class="text-center fw-bold text-secondary"><%= contador %></td>
+                                        <td><%= usuario.getNombre() %></td>
+                                        <td><%= usuario.getCorreo() %></td>
+                                        <td><span class="badge bg-info text-dark"><%= usuario.getRol() %></span></td>
                                         <td class="text-center">
-                                            <img src="imagenes/<%= equipo.getEscudo() %>" alt="Escudo" style="width: 40px; height: 40px;">
-                                        </td>
-                                        <td class="fw-bold"><%= equipo.getNombre() %></td>
-                                        <td><%= equipo.getTelefono() %></td>
-                                        <td class="text-center">
-                                            <a href="EquiposServlet?accion=editar&id=<%= equipo.getEquipoID() %>" 
-                                               class="btn btn-warning btn-sm me-2">Editar</a>
-                                            <a href="EquiposServlet?accion=eliminar&id=<%= equipo.getEquipoID() %>" 
-                                               class="btn btn-danger btn-sm" 
-                                               onclick="return confirm('¿Eliminar?')">Eliminar</a>
+                                            <a href="UsuarioServlet?accion=editar&id=<%= usuario.getUsuarioID() %>" 
+                                               class="btn btn-warning btn-sm me-2 text-dark fw-semibold">Editar</a>
+                                            <a href="UsuarioServlet?accion=eliminar&id=<%= usuario.getUsuarioID() %>" 
+                                               class="btn btn-danger btn-sm fw-semibold" 
+                                               onclick="return confirm('¿Eliminar este usuario?')">Eliminar</a>
                                         </td>
                                     </tr>
                         <% 
+                                    contador++;
                                 } 
                             } else {
                         %>
                             <tr>
-                                <td colspan="4" class="text-center py-4 text-muted">No hay equipos registrados.</td>
+                                <td colspan="5" class="text-center py-4 text-muted">No hay usuarios registrados.</td>
                             </tr>
                         <% } %>
                     </tbody>
@@ -86,5 +82,6 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
