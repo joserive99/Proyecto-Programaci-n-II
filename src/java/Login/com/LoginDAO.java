@@ -6,29 +6,37 @@ import java.sql.*;
 
 public class LoginDAO {
     
-        public Usuario validateLogin(Usuario usuario) {
-        try {
-            Database db = new Database();
-            Connection conn = db.getConnection();
+public Usuario validateLogin(Usuario usuario) {
 
-            PreparedStatement pstat = conn.prepareStatement("SELECT * FROM usuario WHERE Correo = ? AND Contrasena =?");
+            try {
 
-            pstat.setString(1, usuario.getCorreo());
-            pstat.setString(2, usuario.getContrasena());
+                Database db = new Database();
+                Connection conn = db.getConnection();
 
-            ResultSet rs = pstat.executeQuery();
+                PreparedStatement pstat = conn.prepareStatement(
+                        "SELECT * FROM Usuario WHERE Correo=? AND Contrasena=?");
 
-            while (rs.next()) {   
-                
-                usuario.setNombre(rs.getString("Nombre"));
-                return usuario;
+                pstat.setString(1, usuario.getCorreo());
+                pstat.setString(2, usuario.getContrasena());
+
+                ResultSet rs = pstat.executeQuery();
+
+                if (rs.next()) {
+
+                    usuario.setUsuarioID(rs.getInt("UsuarioID"));
+                    usuario.setNombre(rs.getString("Nombre"));
+                    usuario.setCorreo(rs.getString("Correo"));
+                    usuario.setRol(rs.getString("Rol"));
+
+                    return usuario;
+                }
+
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
 
-            return null;
-        } catch (SQLException ex) {
-            return null;
-        }
-    }
+    return null;
+}
                 
         public boolean RegistrarUsuario (Usuario usuario){
             
@@ -38,11 +46,14 @@ public class LoginDAO {
             try{
                 Database db = new Database();
                 
-                PreparedStatement pstmt = db.getConnection().prepareStatement("INSERT INTO Usuario (Nombre, Correo, Contrasena) VALUES (?,?,?)");
+                PreparedStatement pstmt = db.getConnection().prepareStatement(
+                         "INSERT INTO Usuario (Nombre, Correo, Contrasena, Rol) VALUES (?,?,?,?)");
+                
                 pstmt.setString(1, usuario.getNombre());
                 pstmt.setString(2, usuario.getCorreo());
                 pstmt.setString(3, usuario.getContrasena());
-            
+                pstmt.setString(4, "USUARIO");
+
                int filas = pstmt.executeUpdate();
                return filas > 0;
             }

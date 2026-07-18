@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpSession;
+
 
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
@@ -22,11 +24,8 @@ public class LoginServlet extends HttpServlet {
      String accion = request.getParameter("accion");
 
      LoginDAO dao = new LoginDAO();
-
         if ("registrar".equals(accion)) {
-
             Usuario usuario = new Usuario();
-
             usuario.setNombre(request.getParameter("Nombre"));
             usuario.setCorreo(request.getParameter("Correo"));
             usuario.setContrasena(request.getParameter("Contrasena"));
@@ -44,24 +43,29 @@ public class LoginServlet extends HttpServlet {
 
         }
         
-        else if ("login".equals(accion)) {
+    else if ("login".equals(accion)) {
 
-            Usuario usuario = new Usuario();
+        Usuario usuario = new Usuario();
 
-            usuario.setCorreo(request.getParameter("Correo"));
-            usuario.setContrasena(request.getParameter("Contrasena"));
+        usuario.setCorreo(request.getParameter("Correo"));
+        usuario.setContrasena(request.getParameter("Contrasena"));
 
-            usuario = dao.validateLogin(usuario);
+        usuario = dao.validateLogin(usuario);
 
-            if (usuario != null) 
-            {
-                 response.sendRedirect("Equipos.jsp");
-            } else 
-            {
-                response.sendRedirect("error.jsp");
+        if (usuario != null) {
+            HttpSession session = request.getSession();
+            session.setAttribute("usuario", usuario);
+            session.setAttribute("UsuarioID", usuario.getUsuarioID());
+            session.setAttribute("Nombre", usuario.getNombre());
+            session.setAttribute("Rol", usuario.getRol());
+
+            if ("ADMIN".equals(usuario.getRol())) {
+                response.sendRedirect("Administrador.jsp");
+            } else {
+                response.sendRedirect("Principal.jsp");
             }
-
+        } else {
+            response.sendRedirect("error.jsp");
         }
-
-     }
-}
+    }
+    }}
