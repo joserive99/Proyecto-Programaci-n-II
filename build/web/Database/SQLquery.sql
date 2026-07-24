@@ -55,11 +55,18 @@ VALUES
 ('Limón', 'limon.png', '11111124', 1),
 ('Uruguay de Coronado', 'uruguay_coronado.png', '11111126', 1),
 ('Municipal Grecia', 'municipal_grecia.png', '11111117', 1);
+ALTER TABLE Torneo
+ADD COLUMN deporte VARCHAR(50),
+ADD COLUMN categoria VARCHAR(50);
+SHOW COLUMNS FROM Torneo;
 SELECT * FROM Equipo;
 DESCRIBE Equipo;
+SELECT * FROM Torneo;
 CREATE TABLE Torneo(
 	  torneo_id INT AUTO_INCREMENT PRIMARY KEY,
 	nombre varchar(100) not null,
+	deporte VARCHAR(50),
+    categoria VARCHAR(50),
 	imagen varchar(255),
 	fechaInicio date not null,
 	fechaFinal date not null,
@@ -68,6 +75,12 @@ CREATE TABLE Torneo(
     campeon_id INT,
     FOREIGN KEY (campeon_id) REFERENCES Equipo(id_equipo) ON DELETE SET NULL
 );
+INSERT INTO Torneo
+(nombre,deporte,categoria,fechaInicio,fechaFinal,estado,imagen,premio,campeon_id)
+VALUES
+('Copa Nacional','Fútbol','Mayor','2026-08-01','2026-08-30','Activo',NULL,500000.00,NULL),
+
+('Liga Juvenil','Fútbol','Sub-17','2026-09-01','2026-10-15','Pendiente',NULL,250000.00,NULL);
 
 SELECT * FROM partidos;
 

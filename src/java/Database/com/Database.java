@@ -1,29 +1,56 @@
 
 package Database.com;
-import java.sql.*;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class Database {
-    
+
     private Connection conn;
 
-    public Connection getConnection() {
-        return conn;
+    public Database() {
+
+        try {
+
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            conn = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/torneos?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8",
+                "root",
+                "Medium"
+            );
+
+        } catch (ClassNotFoundException | SQLException ex) {
+
+            ex.printStackTrace();
+
+        }
+
     }
 
-    public Database() {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://localhost/torneos", "root", "Admin$1234");
-        } catch (ClassNotFoundException | SQLException ex) {
-            System.getLogger(Database.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
+    public Connection getConnection() {
+
+        return conn;
+
     }
 
     public void Close() {
+
         try {
-            conn.close();
+
+            if(conn!=null){
+
+                conn.close();
+
+            }
+
         } catch (SQLException ex) {
-            System.getLogger(Database.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+
+            ex.printStackTrace();
+
         }
+
     }
+
 }
