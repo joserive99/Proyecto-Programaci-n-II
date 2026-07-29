@@ -18,7 +18,7 @@ public class Database {
             conn = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/torneos?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8",
                 "root",
-                "Medium"
+                "Admin$1234"
             );
 
         } catch (ClassNotFoundException | SQLException ex) {
