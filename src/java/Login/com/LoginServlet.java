@@ -52,20 +52,39 @@ public class LoginServlet extends HttpServlet {
 
         usuario = dao.validateLogin(usuario);
 
-        if (usuario != null) {
-            HttpSession session = request.getSession();
+            if (usuario != null) {
+                 HttpSession sesionAnterior = request.getSession(false);
+
+            if (sesionAnterior != null) {
+                sesionAnterior.invalidate();
+            }
+
+            HttpSession session = request.getSession(true);
             session.setAttribute("usuario", usuario);
             session.setAttribute("UsuarioID", usuario.getUsuarioID());
             session.setAttribute("Nombre", usuario.getNombre());
             session.setAttribute("Rol", usuario.getRol());
 
-            if ("ADMIN".equals(usuario.getRol())) {
-                response.sendRedirect("Administrador.jsp");
+            if ("ADMIN".equalsIgnoreCase(usuario.getRol())) {
+
+                    response.sendRedirect(request.getContextPath() + "/Administrador.jsp");
+
+                } else {
+
+                    response.sendRedirect(request.getContextPath() + "/Principal.jsp");
+                }
+
+                return;
+
             } else {
-                response.sendRedirect("Principal.jsp");
+
+                response.sendRedirect(request.getContextPath() + "/error.jsp");
+
+                return;
             }
-        } else {
-            response.sendRedirect("error.jsp");
-        }
+
+      }
     }
-    }}
+ }            
+
+

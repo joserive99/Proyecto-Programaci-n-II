@@ -21,10 +21,10 @@
         }
     %>
 
-    <nav class="navbar navbar-dark bg-primary mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <span class="navbar-brand mb-0 h1">Sistema de Torneos</span>
-            <a href="LogoutServlet" class="btn btn-danger btn-sm">Cerrar Sesión</a>
+            <a href="<%= request.getContextPath() %>/LogoutServlet">Cerrar sesión</a>    
         </div>
     </nav>
 

@@ -15,7 +15,7 @@
 </head>
 <body class="bg-light">
 
-    <nav class="navbar navbar-dark bg-primary mb-4 shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid px-4">
             <a class="navbar-brand fw-bold" href="Administrador.jsp">Sistema de Torneos</a>
             <div class="d-flex align-items-center text-white">
