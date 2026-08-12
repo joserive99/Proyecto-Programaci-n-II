@@ -35,7 +35,7 @@
         <div class="bg-white p-4 rounded shadow-sm">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3 class="mb-0 fw-bold" style="color: #4a4a4a;">Equipos Registrados</h3>
-                <a href="RegistrarEquipo.jsp" class="btn btn-success px-4">+ Nuevo Equipo</a>
+                <a href="<%= request.getContextPath() %>/EquipoServlet?accion=nuevo" class="btn btn-success px-4">+ Nuevo Equipo</a>
             </div>
 
             <div class="table-responsive">
@@ -57,16 +57,13 @@
                         %>
                                     <tr>
                                         <td class="text-center">
-                                            <img src="imagenes/<%= equipo.getEscudo() %>" alt="Escudo" style="width: 40px; height: 40px;">
+                                            <img src="<%= equipo.getEscudo() %>" alt="Escudo" style="width: 55px; height: 55px; object-fit: contain;">
                                         </td>
                                         <td class="fw-bold"><%= equipo.getNombre() %></td>
                                         <td><%= equipo.getTelefono() %></td>
                                         <td class="text-center">
-                                            <a href="EquiposServlet?accion=editar&id=<%= equipo.getEquipoID() %>" 
-                                               class="btn btn-warning btn-sm me-2">Editar</a>
-                                            <a href="EquiposServlet?accion=eliminar&id=<%= equipo.getEquipoID() %>" 
-                                               class="btn btn-danger btn-sm" 
-                                               onclick="return confirm('¿Eliminar?')">Eliminar</a>
+                                            <a href="<%= request.getContextPath() %>/EquipoServlet?accion=editar&id=<%= equipo.getEquipoID() %>" class="btn btn-warning btn-sm me-2">Editar</a>
+                                             <a href="<%= request.getContextPath() %>/EquipoServlet?accion=eliminar&id=<%= equipo.getEquipoID() %>" class="btn btn-danger btn-sm" onclick="return confirm('¿Desea eliminar este equipo?')">Eliminar</a>
                                         </td>
                                     </tr>
                         <% 

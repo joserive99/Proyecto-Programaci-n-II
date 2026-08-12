@@ -1,266 +1,118 @@
-<%-- 
-    Document   : formularioTorneo
-    Created on : 24 jul 2026, 10:04:41 a. m.
-    Author     : Usuario
---%>
-
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="Torneos.com.Torneo"%>
-<%@page import="java.util.List"%>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.List" %>
 
 <%
-    Torneo torneo = (Torneo) request.getAttribute("torneo");
-
-    boolean editar = torneo != null;
-
-    List<String[]> equipos =
-            (List<String[]>) request.getAttribute("equipos");
+    List<String[]> equipos = (List<String[]>) request.getAttribute("equipos");
+    String error = (String) request.getAttribute("error");
 %>
 
 <!DOCTYPE html>
-
-<html>
-
+<html lang="es">
 <head>
-
-<meta charset="UTF-8">
-
-<title>
-
-<%= editar ? "Editar Torneo" : "Nuevo Torneo" %>
-
-</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear torneo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f5f6fa; }
+        .card { border: none; border-radius: 15px; }
+        .equipo-item { border: 1px solid #dee2e6; border-radius: 10px; padding: 12px; transition: .2s; }
+        .equipo-item:hover { background: #f1f3f5; }
+    </style>
 </head>
+<body>
 
-<body class="bg-light">
+<div class="container py-5">
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white py-3"><h3 class="text-center mb-0">Crear torneo</h3></div>
 
-<div class="container mt-5">
+        <div class="card-body p-4">
+            <% if (error != null && !error.isBlank()) { %>
+                <div class="alert alert-danger"><%= error %></div>
+            <% } %>
 
-<div class="card shadow">
+            <form action="<%= request.getContextPath() %>/TorneoServlet" method="post">
+                <input type="hidden" name="accion" value="crear">
 
-<div class="card-header bg-primary text-white">
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre del torneo</label>
+                    <input type="text" id="nombre" name="nombre" class="form-control" maxlength="100" required>
+                </div>
 
-<h3 class="text-center">
+                <div class="mb-3">
+                    <label for="imagen" class="form-label">Imagen</label>
+                    <input type="text" id="imagen" name="imagen" class="form-control" maxlength="255" placeholder="URL o nombre de la imagen" required>
+                </div>
 
-<%= editar ? "Editar Torneo" : "Registrar Torneo" %>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="fechaInicio" class="form-label">Fecha de inicio</label>
+                        <input type="date" id="fechaInicio" name="fechaInicio" class="form-control" required>
+                    </div>
 
-</h3>
+                    <div class="col-md-6 mb-3">
+                        <label for="fechaFinal" class="form-label">Fecha final</label>
+                        <input type="date" id="fechaFinal" name="fechaFinal" class="form-control" required>
+                    </div>
+                </div>
 
+                <div class="mb-4">
+                    <label for="premio" class="form-label">Premio en colones</label>
+                    <input type="number" id="premio" name="premio" class="form-control" min="0" step="0.01" required>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Seleccione los 16 equipos</h5>
+                    <span class="badge bg-dark fs-6">Seleccionados: <span id="cantidad">0</span>/16</span>
+                </div>
+
+                <div class="row g-3">
+                    <% if (equipos != null) { %>
+                        <% for (String[] equipo : equipos) { %>
+                            <div class="col-md-4">
+                                <div class="equipo-item">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input equipo" id="equipo<%= equipo[0] %>" name="equipos" value="<%= equipo[0] %>">
+                                        <label class="form-check-label" for="equipo<%= equipo[0] %>"><%= equipo[1] %></label>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                    <% } %>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="submit" id="crear" class="btn btn-dark" disabled>Crear torneo</button>
+                    <a href="<%= request.getContextPath() %>/TorneoServlet?accion=listar" class="btn btn-secondary">Volver</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
-<div class="card-body">
-
-<form action="TorneoCRUDServlet" method="post">
-
-<input type="hidden"
-       name="accion"
-       value="<%= editar ? "actualizar" : "guardar" %>">
-
-<% if(editar){ %>
-
-<input type="hidden"
-       name="torneo_id"
-       value="<%= torneo.getTorneo_id() %>">
-
-<% } %>
-<div class="row">
-
-    <div class="col-md-6 mb-3">
-
-        <label class="form-label">Nombre</label>
-
-        <input type="text"
-               name="nombre"
-               class="form-control"
-               required
-               value="<%= editar ? torneo.getNombre() : "" %>">
-
-    </div>
-
-    <div class="col-md-6 mb-3">
-
-        <label class="form-label">Deporte</label>
-
-        <input type="text"
-               name="deporte"
-               class="form-control"
-               required
-               value="<%= editar ? torneo.getDeporte() : "" %>">
-
-    </div>
-
-</div>
-
-<div class="row">
-
-    <div class="col-md-6 mb-3">
-
-        <label class="form-label">Categoría</label>
-
-        <input type="text"
-               name="categoria"
-               class="form-control"
-               required
-               value="<%= editar ? torneo.getCategoria() : "" %>">
-
-    </div>
-
-    <div class="col-md-6 mb-3">
-
-        <label class="form-label">Imagen (URL)</label>
-
-        <input type="text"
-               name="imagen"
-               class="form-control"
-               value="<%= editar ? torneo.getImagen() : "" %>">
-
-    </div>
-
-</div>
-
-<div class="row">
-
-    <div class="col-md-6 mb-3">
-
-        <label class="form-label">Fecha Inicio</label>
-
-        <input type="date"
-               name="fechaInicio"
-               class="form-control"
-               required
-               value="<%= editar ? torneo.getFechaInicio() : "" %>">
-
-    </div>
-
-    <div class="col-md-6 mb-3">
-
-        <label class="form-label">Fecha Final</label>
-
-        <input type="date"
-               name="fechaFinal"
-               class="form-control"
-               required
-               value="<%= editar ? torneo.getFechaFinal() : "" %>">
-
-    </div>
-
-</div>
-
-<div class="row">
-
-    <div class="col-md-6 mb-3">
-
-        <label class="form-label">Premio</label>
-
-        <input type="number"
-               step="0.01"
-               min="0"
-               name="premio"
-               class="form-control"
-               required
-               value="<%= editar ? torneo.getPremio() : "" %>">
-
-    </div>
-
-    <div class="col-md-6 mb-3">
-
-        <label class="form-label">Estado</label>
-
-        <select name="estado" class="form-select">
-
-            <option value="ACTIVO"
-                <%= editar && "ACTIVO".equals(torneo.getEstado()) ? "selected" : "" %>>
-                ACTIVO
-            </option>
-
-            <option value="PENDIENTE"
-                <%= editar && "PENDIENTE".equals(torneo.getEstado()) ? "selected" : "" %>>
-                PENDIENTE
-            </option>
-
-            <option value="FINALIZADO"
-                <%= editar && "FINALIZADO".equals(torneo.getEstado()) ? "selected" : "" %>>
-                FINALIZADO
-            </option>
-
-        </select>
-
-    </div>
-
-</div>
-
-<div class="mb-3">
-
-    <label class="form-label">Campeón</label>
-
-    <select class="form-select" name="campeon_id">
-
-        <option value="">Seleccione un equipo</option>
-
-        <%
-            if(equipos!=null){
-
-                for(String[] e : equipos){
-
-                    String selected="";
-
-                    if(editar &&
-                       torneo.getCampeon_id()!=null &&
-                       torneo.getCampeon_id()==Integer.parseInt(e[0])){
-
-                        selected="selected";
-
-                    }
-        %>
-
-        <option value="<%=e[0]%>" <%=selected%>>
-
-            <%=e[1]%>
-
-        </option>
-
-        <%
-
-                }
-
+<script>
+    const equipos = document.querySelectorAll(".equipo");
+    const cantidad = document.getElementById("cantidad");
+    const botonCrear = document.getElementById("crear");
+
+    equipos.forEach(function(equipo) {
+        equipo.addEventListener("change", function() {
+            let seleccionados = document.querySelectorAll(".equipo:checked").length;
+
+            if (seleccionados > 16) {
+                this.checked = false;
+                seleccionados = 16;
+                alert("Solamente puede seleccionar 16 equipos.");
             }
 
-        %>
-
-    </select>
-
-</div>
-
-<div class="text-center mt-4">
-
-    <button type="submit"
-            class="btn btn-success">
-
-        <%= editar ? "Actualizar" : "Guardar" %>
-
-    </button>
-
-    <a href="TorneoCRUDServlet?accion=listar"
-       class="btn btn-secondary">
-
-        Volver
-
-    </a>
-
-</div>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
+            cantidad.textContent = seleccionados;
+            botonCrear.disabled = seleccionados !== 16;
+        });
+    });
+    document.getElementById("fechaInicio").addEventListener("change", function() {
+        document.getElementById("fechaFinal").min = this.value;
+    });
+</script>
 
 </body>
-
 </html>

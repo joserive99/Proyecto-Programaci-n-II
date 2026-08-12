@@ -9,14 +9,10 @@
         <title>Registrarse</title>
     </head>
     <body class="bg-light">
-        <div class="d-flex justify-content-center align-items-center min-vh-100">     
-
+        <div class="d-flex justify-content-center align-items-center min-vh-100">  
         <form action="LoginServlet" method="POST" class="shadow p-5 rounded bg-white" style="width: 100%; max-width: 500px; transform: translateY(-60px);">
-
             <input type="hidden" name="accion" value="registrar">
-
             <h1 class="text-center mb-4">Registrarse</h1>
-            
             <%
                 String error = request.getParameter("error");
 
@@ -26,24 +22,19 @@
             <%
                 }
             %>
-
             <div class="mb-3">
                 <label for="Nombre" class="form-label">Nombre</label>
                 <input type="text" class="form-control" id="Nombre" name="Nombre" required>
             </div>
-
             <div class="mb-3">
                 <label for="Correo" class="form-label">Correo</label>
                 <input type="email" class="form-control" id="Correo" name="Correo" required>
             </div>
-
             <div class="mb-3">
                 <label for="Contrasena" class="form-label">Contraseña</label>
                 <input type="password" class="form-control" id="Contrasena" name="Contrasena" required>
             </div>
-
             <button type="submit" class="btn btn-dark w-100">Registrarse</button>
-
             <a href="Login.jsp" class="btn btn-outline-dark w-100 mt-3">Volver al login</a>
            </form>
         </div>   

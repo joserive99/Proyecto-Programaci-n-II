@@ -14,7 +14,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
-
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid px-4">
             <a class="navbar-brand fw-bold" href="Administrador.jsp">Sistema de Torneos</a>
@@ -24,14 +23,12 @@
             </div>
         </div>
     </nav>
-
     <div class="container">
         <div class="bg-white p-4 rounded shadow-sm">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3 class="mb-0 fw-bold" style="color: #4a4a4a;">Usuarios Registrados</h3>
                 <a href="Registrarse.jsp" class="btn btn-primary px-4">+ Nuevo Usuario</a>
             </div>
-
             <div class="table-responsive">
                 <table class="table table-hover align-middle border">
                     <thead class="table-light">
