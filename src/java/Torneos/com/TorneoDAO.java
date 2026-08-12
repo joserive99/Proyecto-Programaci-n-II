@@ -17,7 +17,6 @@ public class TorneoDAO {
     private final Database db = new Database();
 
     public int crearConLlaves(Torneo torneo, List<Integer> equipos) throws SQLException {
-        
         validarEquipos(equipos);
 
         try (Connection con = db.getConnection()) {
@@ -28,7 +27,7 @@ public class TorneoDAO {
                     throw new SQLException("Ya existe un torneo activo en el sistema.");
                 }
 
-                validarEquiposAprobados(con, equipos);
+                validarEquiposRegistrados(con, equipos);
                 torneo.setEstado("ACTIVO");
                 torneo.setCampeon_id(null);
 
@@ -54,8 +53,7 @@ public class TorneoDAO {
     }
 
     private int insertarTorneo(Connection con, Torneo torneo) throws SQLException {
-        
-        String sql = "INSERT INTO Torneo (nombre, imagen, fechaInicio, fechaFinal, premio, estado, campeon_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Torneo (nombre,imagen,fechaInicio,fechaFinal,premio,estado,campeon_id) VALUES (?,?,?,?,?,?,?)";
 
         try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, torneo.getNombre());
@@ -77,8 +75,7 @@ public class TorneoDAO {
     }
 
     private void guardarParticipantes(Connection con, int torneoId, List<Integer> equipos) throws SQLException {
-        
-        String sql = "INSERT INTO TorneoEquipo (torneo_id, equipo_id) VALUES (?, ?)";
+        String sql = "INSERT INTO TorneoEquipo (torneo_id,equipo_id) VALUES (?,?)";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             for (Integer equipoId : equipos) {
@@ -91,7 +88,6 @@ public class TorneoDAO {
     }
 
     private void crearEstructuraLlaves(Connection con, int torneoId, List<Integer> equipos) throws SQLException {
-        
         int idFinal = crearPartidoEstructura(con, torneoId, 4, 1, null, null);
         int idSemi1 = crearPartidoEstructura(con, torneoId, 3, 1, idFinal, "LOCAL");
         int idSemi2 = crearPartidoEstructura(con, torneoId, 3, 2, idFinal, "VISITA");
@@ -99,14 +95,13 @@ public class TorneoDAO {
         int idCuarto2 = crearPartidoEstructura(con, torneoId, 2, 2, idSemi1, "VISITA");
         int idCuarto3 = crearPartidoEstructura(con, torneoId, 2, 3, idSemi2, "LOCAL");
         int idCuarto4 = crearPartidoEstructura(con, torneoId, 2, 4, idSemi2, "VISITA");
-        int[] destinosCuartos = {idCuarto1, idCuarto1, idCuarto2, idCuarto2, idCuarto3, idCuarto3, idCuarto4, idCuarto4};
-        String[] posiciones = {"LOCAL", "VISITA", "LOCAL", "VISITA", "LOCAL", "VISITA", "LOCAL", "VISITA"};
+        int[] destinosCuartos = {idCuarto1,idCuarto1,idCuarto2,idCuarto2,idCuarto3,idCuarto3,idCuarto4,idCuarto4};
+        String[] posiciones = {"LOCAL","VISITA","LOCAL","VISITA","LOCAL","VISITA","LOCAL","VISITA"};
         crearPartidosPrimeraRonda(con, torneoId, equipos, destinosCuartos, posiciones);
     }
 
     private void crearPartidosPrimeraRonda(Connection con, int torneoId, List<Integer> equipos, int[] destinos, String[] posiciones) throws SQLException {
-        
-        String sql = "INSERT INTO Partidos (torneo_id, ronda, posicion_llave, equipo_local_id, equipo_visita_id, siguiente_partido_id, posicion_siguiente_local_visita) VALUES (?, 1, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Partidos (torneo_id,ronda,posicion_llave,equipo_local_id,equipo_visita_id,siguiente_partido_id,posicion_siguiente_local_visita) VALUES (?,1,?,?,?,?,?)";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             for (int i = 0; i < 16; i += 2) {
@@ -124,8 +119,7 @@ public class TorneoDAO {
     }
 
     private int crearPartidoEstructura(Connection con, int torneoId, int ronda, int posicion, Integer siguientePartidoId, String lado) throws SQLException {
-        
-        String sql = "INSERT INTO Partidos (torneo_id, ronda, posicion_llave, siguiente_partido_id, posicion_siguiente_local_visita) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Partidos (torneo_id,ronda,posicion_llave,siguiente_partido_id,posicion_siguiente_local_visita) VALUES (?,?,?,?,?)";
 
         try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, torneoId);
@@ -156,7 +150,6 @@ public class TorneoDAO {
     }
 
     private boolean existeTorneoActivo(Connection con) throws SQLException {
-        
         String sql = "SELECT torneo_id FROM Torneo WHERE estado = 'ACTIVO' LIMIT 1";
 
         try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
@@ -165,18 +158,17 @@ public class TorneoDAO {
     }
 
     private void validarEquipos(List<Integer> equipos) {
-        
         if (equipos == null || equipos.size() != 16) {
             throw new IllegalArgumentException("Debe seleccionar exactamente 16 equipos.");
         }
+
         if (new HashSet<>(equipos).size() != 16) {
             throw new IllegalArgumentException("No se pueden seleccionar equipos repetidos.");
         }
     }
 
-    private void validarEquiposAprobados(Connection con, List<Integer> equipos) throws SQLException {
-        
-        String sql = "SELECT COUNT(*) FROM Equipo WHERE estado = 'APROBADO' AND id_equipo IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private void validarEquiposRegistrados(Connection con, List<Integer> equipos) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Equipo WHERE id_equipo IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             for (int i = 0; i < equipos.size(); i++) {
@@ -186,29 +178,27 @@ public class TorneoDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 rs.next();
                 if (rs.getInt(1) != 16) {
-                    throw new SQLException("Todos los equipos seleccionados deben estar aprobados.");
+                    throw new SQLException("Los 16 equipos seleccionados deben estar registrados.");
                 }
             }
         }
     }
 
-    public List<String[]> listarEquiposAprobados() throws SQLException {
-        
+    public List<String[]> listarEquipos() throws SQLException {
         List<String[]> lista = new ArrayList<>();
-        String sql = "SELECT id_equipo, nombre FROM Equipo WHERE estado = 'APROBADO' ORDER BY nombre";
+        String sql = "SELECT id_equipo,nombre FROM Equipo ORDER BY nombre";
 
         try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                lista.add(new String[]{rs.getString("id_equipo"), rs.getString("nombre")});
+                lista.add(new String[]{rs.getString("id_equipo"),rs.getString("nombre")});
             }
         }
         return lista;
     }
 
     public List<Torneo> listar() throws SQLException {
-        
         List<Torneo> lista = new ArrayList<>();
-        String sql = "SELECT t.*, e.nombre AS nombre_campeon FROM Torneo t LEFT JOIN Equipo e ON t.campeon_id = e.id_equipo ORDER BY t.torneo_id DESC";
+        String sql = "SELECT t.*,e.nombre AS nombre_campeon FROM Torneo t LEFT JOIN Equipo e ON t.campeon_id = e.id_equipo ORDER BY t.torneo_id DESC";
 
         try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -221,9 +211,8 @@ public class TorneoDAO {
     }
 
     public List<Torneo> buscar(String nombre) throws SQLException {
-        
         List<Torneo> lista = new ArrayList<>();
-        String sql = "SELECT t.*, e.nombre AS nombre_campeon FROM Torneo t LEFT JOIN Equipo e ON t.campeon_id = e.id_equipo WHERE t.nombre LIKE ? ORDER BY t.nombre";
+        String sql = "SELECT t.*,e.nombre AS nombre_campeon FROM Torneo t LEFT JOIN Equipo e ON t.campeon_id = e.id_equipo WHERE t.nombre LIKE ? ORDER BY t.nombre";
 
         try (Connection con = db.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, "%" + nombre + "%");
@@ -238,9 +227,37 @@ public class TorneoDAO {
         }
         return lista;
     }
+    public Torneo buscarPorId(int torneoId) throws SQLException {
+
+    String sql = "SELECT t.*, e.nombre AS nombre_campeon FROM Torneo t LEFT JOIN Equipo e ON t.campeon_id = e.id_equipo WHERE t.torneo_id = ?";
+
+    Database database = new Database();
+
+    try (Connection con = database.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+        ps.setInt(1, torneoId);
+
+        try (ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+
+                Torneo torneo = mapearTorneo(rs);
+
+                torneo.setNombreCampeon(rs.getString("nombre_campeon"));
+
+                return torneo;
+            }
+        }
+
+    } finally {
+
+        database.Close();
+    }
+
+    return null;
+}
 
     private Torneo mapearTorneo(ResultSet rs) throws SQLException {
-        
         Torneo torneo = new Torneo();
         torneo.setTorneo_id(rs.getInt("torneo_id"));
         torneo.setNombre(rs.getString("nombre"));
@@ -253,5 +270,48 @@ public class TorneoDAO {
         int campeonId = rs.getInt("campeon_id");
         torneo.setCampeon_id(rs.wasNull() ? null : campeonId);
         return torneo;
+    }
+    
+    public List<String[]> listarParticipantes(int torneoId) {
+
+        List<String[]> participantes = new ArrayList<>();
+
+        String sql = "SELECT e.id_equipo, e.nombre, e.escudo FROM TorneoEquipo te INNER JOIN Equipo e ON te.equipo_id = e.id_equipo WHERE te.torneo_id = ? ORDER BY e.nombre";
+
+        Database db = new Database();
+
+        try {
+
+            Connection con = db.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setInt(1, torneoId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                String[] equipo = new String[3];
+
+                equipo[0] = rs.getString("id_equipo");
+                equipo[1] = rs.getString("nombre");
+                equipo[2] = rs.getString("escudo");
+
+                participantes.add(equipo);
+            }
+
+            rs.close();
+            ps.close();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        } finally {
+
+            db.Close();
+        }
+
+        return participantes;
     }
 }

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package Equipo.com;
 
 import jakarta.servlet.ServletException;
@@ -10,92 +6,226 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
 import java.io.IOException;
 import java.util.List;
 
 @WebServlet("/EquipoServlet")
 public class EquipoServlet extends HttpServlet {
 
+    private final EquipoDAO dao = new EquipoDAO();
+
     @Override
-    protected void doGet(HttpServletRequest request,
-            HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("usuario") == null) {
+            response.sendRedirect(request.getContextPath() + "/Login.jsp");
+            return;
+        }
 
         String accion = request.getParameter("accion");
-        EquipoDAO dao = new EquipoDAO();
-        if (accion == null) {
+
+        if (accion == null || accion.isBlank()) {
             accion = "listar";
         }
 
-        switch (accion) {
+        try {
 
-            case "listar":
+            switch (accion) {
 
-                List<Equipo> lista = dao.listarEquipos();
-                System.out.println("Tamaño de la lista encontrada: " + lista.size());
-                request.setAttribute("listaEquipos", lista);
-                request.getRequestDispatcher("Equipos.jsp")
-                        .forward(request, response);
-                break;
+                case "listar":
 
-            case "editar":
+                    listarEquipos(request, response);
+                    break;
 
-                int idEditar = Integer.parseInt(request.getParameter("id"));
-                Equipo equipo = dao.buscarEquipo(idEditar);
-                request.setAttribute("equipo", equipo);
-                request.getRequestDispatcher("EditarEquipo.jsp")
-                        .forward(request, response);
+                case "nuevo":
 
-                break;
+                    request.getRequestDispatcher("/RegistrarEquipo.jsp").forward(request, response);
+                    break;
 
-            case "eliminar":
+                case "editar":
 
-                int idEliminar = Integer.parseInt(request.getParameter("id"));
-                dao.eliminarEquipo(idEliminar);
-                response.sendRedirect("EquipoServlet?accion=listar");
-                break;
+                    int idEditar = Integer.parseInt(request.getParameter("id"));
 
-            default:
-                response.sendRedirect("EquipoServlet?accion=listar");
-                break;
+                    Equipo equipo = dao.buscarEquipo(idEditar);
+
+                    if (equipo == null) {
+                        throw new IllegalArgumentException("El equipo solicitado no existe.");
+                    }
+
+                    request.setAttribute("equipo", equipo);
+
+                    request.getRequestDispatcher("/EditarEquipo.jsp").forward(request, response);
+                    break;
+
+                case "eliminar":
+
+                    int idEliminar = Integer.parseInt(request.getParameter("id"));
+
+                    boolean eliminado = dao.eliminarEquipo(idEliminar);
+
+                    if (!eliminado) {
+                        throw new IllegalArgumentException("No se pudo eliminar el equipo. Puede estar participando en un torneo.");
+                    }
+
+                    response.sendRedirect(request.getContextPath() + "/EquipoServlet?accion=listar");
+                    break;
+
+                default:
+
+                    response.sendRedirect(request.getContextPath() + "/EquipoServlet?accion=listar");
+                    break;
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            request.setAttribute("error", e.getMessage());
+
+            listarEquipos(request, response);
         }
     }
 
     @Override
-    protected void doPost(HttpServletRequest request,
-            HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("usuario") == null) {
+            response.sendRedirect(request.getContextPath() + "/Login.jsp");
+            return;
+        }
 
         String accion = request.getParameter("accion");
-        EquipoDAO dao = new EquipoDAO();
-        if ("guardar".equals(accion)) {
 
-            Equipo equipo = new Equipo();
-            equipo.setNombre(request.getParameter("Nombre"));
-            equipo.setEscudo(request.getParameter("Escudo"));
-            equipo.setTelefono(request.getParameter("Telefono"));
+        try {
 
-            HttpSession session = request.getSession();
-            equipo.setUsuarioID((Integer) session.getAttribute("UsuarioID"));
-            dao.guardarEquipo(equipo);
-            response.sendRedirect("EquipoServlet?accion=listar");
+            if ("guardar".equals(accion)) {
 
+                guardarEquipo(request, response, session);
+
+            } else if ("actualizar".equals(accion)) {
+
+                actualizarEquipo(request, response);
+
+            } else {
+
+                response.sendRedirect(request.getContextPath() + "/EquipoServlet?accion=listar");
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            request.setAttribute("error", e.getMessage());
+
+            if ("actualizar".equals(accion)) {
+
+                cargarEquipoParaEditar(request);
+
+                request.getRequestDispatcher("/EditarEquipo.jsp").forward(request, response);
+
+            } else {
+
+                request.getRequestDispatcher("/RegistrarEquipo.jsp").forward(request, response);
+            }
         }
-
-        else if ("actualizar".equals(accion)) {
-
-            Equipo equipo = new Equipo();
-            equipo.setEquipoID(
-                    Integer.parseInt(request.getParameter("EquipoID")));
-            equipo.setNombre(request.getParameter("Nombre"));
-            equipo.setEscudo(request.getParameter("Escudo"));
-            equipo.setTelefono(request.getParameter("Telefono"));
-            dao.actualizarEquipo(equipo);
-            response.sendRedirect("EquipoServlet?accion=listar");
-
-        }
-
     }
 
+    private void listarEquipos(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        List<Equipo> lista = dao.listarEquipos();
+
+        request.setAttribute("listaEquipos", lista);
+
+        request.getRequestDispatcher("/Equipos.jsp").forward(request, response);
+    }
+
+    private void guardarEquipo(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
+
+        String nombre = request.getParameter("nombre");
+        String escudo = request.getParameter("escudo");
+        String telefono = request.getParameter("telefono");
+
+        validarDatos(nombre, escudo, telefono);
+
+        Object usuarioID = session.getAttribute("UsuarioID");
+
+        if (usuarioID == null) {
+            throw new IllegalArgumentException("No se encontró el usuario de la sesión.");
+        }
+
+        Equipo equipo = new Equipo();
+
+        equipo.setNombre(nombre.trim());
+        equipo.setEscudo(escudo.trim());
+        equipo.setTelefono(telefono.trim());
+        equipo.setUsuarioID((Integer) usuarioID);
+
+        boolean guardado = dao.guardarEquipo(equipo);
+
+        if (!guardado) {
+            throw new IllegalArgumentException("No se pudo guardar el equipo. El nombre puede estar repetido.");
+        }
+
+        response.sendRedirect(request.getContextPath() + "/EquipoServlet?accion=listar");
+    }
+
+    private void actualizarEquipo(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        String equipoIDTexto = request.getParameter("equipoID");
+        String nombre = request.getParameter("nombre");
+        String escudo = request.getParameter("escudo");
+        String telefono = request.getParameter("telefono");
+
+        validarDatos(nombre, escudo, telefono);
+
+        if (equipoIDTexto == null || equipoIDTexto.isBlank()) {
+            throw new IllegalArgumentException("No se encontró el identificador del equipo.");
+        }
+
+        Equipo equipo = new Equipo();
+
+        equipo.setEquipoID(Integer.parseInt(equipoIDTexto));
+        equipo.setNombre(nombre.trim());
+        equipo.setEscudo(escudo.trim());
+        equipo.setTelefono(telefono.trim());
+
+        boolean actualizado = dao.actualizarEquipo(equipo);
+
+        if (!actualizado) {
+            throw new IllegalArgumentException("No se pudo actualizar el equipo.");
+        }
+
+        response.sendRedirect(request.getContextPath() + "/EquipoServlet?accion=listar");
+    }
+
+    private void cargarEquipoParaEditar(HttpServletRequest request) {
+
+        String equipoIDTexto = request.getParameter("equipoID");
+
+        if (equipoIDTexto != null && !equipoIDTexto.isBlank()) {
+            Equipo equipo = dao.buscarEquipo(Integer.parseInt(equipoIDTexto));
+            request.setAttribute("equipo", equipo);
+        }
+    }
+
+    private void validarDatos(String nombre, String escudo, String telefono) {
+
+        if (nombre == null || nombre.isBlank()) {
+            throw new IllegalArgumentException("Debe escribir el nombre del equipo.");
+        }
+
+        if (escudo == null || escudo.isBlank()) {
+            throw new IllegalArgumentException("Debe escribir el nombre de la imagen del escudo.");
+        }
+
+        if (telefono == null || telefono.isBlank()) {
+            throw new IllegalArgumentException("Debe escribir el teléfono.");
+        }
+    }
 }
