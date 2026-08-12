@@ -122,9 +122,8 @@ public class TorneoServlet extends HttpServlet {
 
         request.setAttribute("equipos", equipos);
 
-        if (equipos.size() != 16) {
-
-            request.setAttribute("error", "Deben existir exactamente 16 equipos registrados. Actualmente hay " + equipos.size() + ".");
+        if (equipos.size() < 16) {
+            request.setAttribute("error", "Deben existir al menos 16 equipos registrados. Actualmente hay " + equipos.size() + ".");
         }
 
         request.getRequestDispatcher("/formularioTorneo.jsp").forward(request, response);

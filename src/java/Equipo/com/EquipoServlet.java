@@ -44,39 +44,35 @@ public class EquipoServlet extends HttpServlet {
                     request.getRequestDispatcher("/RegistrarEquipo.jsp").forward(request, response);
                     break;
 
-                case "editar":
-
-                    int idEditar = Integer.parseInt(request.getParameter("id"));
-
-                    Equipo equipo = dao.buscarEquipo(idEditar);
-
-                    if (equipo == null) {
-                        throw new IllegalArgumentException("El equipo solicitado no existe.");
-                    }
-
-                    request.setAttribute("equipo", equipo);
-
-                    request.getRequestDispatcher("/EditarEquipo.jsp").forward(request, response);
-                    break;
-
+                
                 case "eliminar":
+
+                    HttpSession sessionEliminar = request.getSession(false);
+
+                    if (sessionEliminar == null || !"ADMIN".equalsIgnoreCase((String) sessionEliminar.getAttribute("Rol"))) {
+                        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Solo el administrador puede eliminar equipos.");
+                        return;
+                    }
 
                     int idEliminar = Integer.parseInt(request.getParameter("id"));
 
                     boolean eliminado = dao.eliminarEquipo(idEliminar);
 
                     if (!eliminado) {
-                        throw new IllegalArgumentException("No se pudo eliminar el equipo. Puede estar participando en un torneo.");
+
+                        request.setAttribute("error", "No se puede eliminar el equipo porque forma parte del historial de un torneo. Los participantes no pueden eliminarse después de generar las llaves.");
+
+                        request.setAttribute("listaEquipos", dao.listarEquipos());
+
+                        request.getRequestDispatcher("/Equipos.jsp").forward(request, response);
+
+                        return;
                     }
 
                     response.sendRedirect(request.getContextPath() + "/EquipoServlet?accion=listar");
-                    break;
 
-                default:
-
-                    response.sendRedirect(request.getContextPath() + "/EquipoServlet?accion=listar");
                     break;
-            }
+                            }
 
         } catch (Exception e) {
 
@@ -108,13 +104,10 @@ public class EquipoServlet extends HttpServlet {
 
                 guardarEquipo(request, response, session);
 
-            } else if ("actualizar".equals(accion)) {
-
-                actualizarEquipo(request, response);
-
             } else {
 
                 response.sendRedirect(request.getContextPath() + "/EquipoServlet?accion=listar");
+
             }
 
         } catch (Exception e) {
@@ -123,16 +116,8 @@ public class EquipoServlet extends HttpServlet {
 
             request.setAttribute("error", e.getMessage());
 
-            if ("actualizar".equals(accion)) {
+            request.getRequestDispatcher("/RegistrarEquipo.jsp").forward(request, response);
 
-                cargarEquipoParaEditar(request);
-
-                request.getRequestDispatcher("/EditarEquipo.jsp").forward(request, response);
-
-            } else {
-
-                request.getRequestDispatcher("/RegistrarEquipo.jsp").forward(request, response);
-            }
         }
     }
 
@@ -202,16 +187,6 @@ public class EquipoServlet extends HttpServlet {
         }
 
         response.sendRedirect(request.getContextPath() + "/EquipoServlet?accion=listar");
-    }
-
-    private void cargarEquipoParaEditar(HttpServletRequest request) {
-
-        String equipoIDTexto = request.getParameter("equipoID");
-
-        if (equipoIDTexto != null && !equipoIDTexto.isBlank()) {
-            Equipo equipo = dao.buscarEquipo(Integer.parseInt(equipoIDTexto));
-            request.setAttribute("equipo", equipo);
-        }
     }
 
     private void validarDatos(String nombre, String escudo, String telefono) {
