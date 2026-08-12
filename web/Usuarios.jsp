@@ -37,7 +37,6 @@
                             <th scope="col">Nombre</th>
                             <th scope="col">Correo</th>
                             <th scope="col">Rol</th> <!-- Nueva columna de Rol -->
-                            <th scope="col" class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -53,14 +52,7 @@
                                         <td><%= usuario.getNombre() %></td>
                                         <td><%= usuario.getCorreo() %></td>
                                         <td><span class="badge bg-info text-dark"><%= usuario.getRol() %></span></td>
-                                        <td class="text-center">
-                                            <a href="UsuarioServlet?accion=editar&id=<%= usuario.getUsuarioID() %>" 
-                                               class="btn btn-warning btn-sm me-2 text-dark fw-semibold">Editar</a>
-                                            <a href="UsuarioServlet?accion=eliminar&id=<%= usuario.getUsuarioID() %>" 
-                                               class="btn btn-danger btn-sm fw-semibold" 
-                                               onclick="return confirm('¿Eliminar este usuario?')">Eliminar</a>
-                                        </td>
-                                    </tr>
+                                   </tr>
                         <% 
                                     contador++;
                                 } 

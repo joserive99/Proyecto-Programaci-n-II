@@ -19,14 +19,7 @@
 
     String rol = (String) session.getAttribute("Rol");
     boolean esAdministrador = "ADMIN".equalsIgnoreCase(rol);
-
-    String paginaVolver;
-
-    if (esAdministrador) {
-        paginaVolver = contexto + "/Administrador.jsp";
-    } else {
-        paginaVolver = contexto + "/Principal.jsp";
-    }
+    String paginaVolver = esAdministrador ? contexto + "/Administrador.jsp" : contexto + "/Principal.jsp";
 
     List<Torneo> torneos = (List<Torneo>) request.getAttribute("torneos");
     String error = (String) request.getAttribute("error");
@@ -122,9 +115,7 @@
 
             <p class="mb-0">
 
-                <%= esAdministrador
-                        ? "Administración de torneos deportivos"
-                        : "Consulta de torneos deportivos" %>
+                <%= esAdministrador ? "Administración de torneos deportivos" : "Consulta de torneos deportivos" %>
 
             </p>
 
@@ -134,7 +125,7 @@
 
             <% if (torneoActivo != null) { %>
 
-                <a href="<%= contexto %>/PartidoServlet?accion=ver&torneo_id=<%= torneoActivo.getTorneo_id() %>" class="btn btn-light">Ver llaves</a>
+                <a href="<%= contexto %>/PartidoServlet?accion=ver&amp;torneo_id=<%= torneoActivo.getTorneo_id() %>" class="btn btn-light">Ver llaves</a>
 
             <% } %>
 
@@ -237,15 +228,10 @@
                 %>
 
                 <div class="col-md-6 col-lg-4">
-
                     <div class="card shadow h-100">
-
                         <img src="<%= imagen %>" class="imagen-torneo" alt="Imagen del torneo">
-
                         <div class="card-body">
-
                             <div class="d-flex justify-content-between align-items-center mb-3">
-
                                 <h4 class="card-title mb-0">
 
                                     <%= torneo.getNombre() %>
@@ -288,34 +274,19 @@
 
                                 <strong>Campeón:</strong>
 
-                                <%= torneo.getNombreCampeon() == null
-                                        ? "Sin campeón"
-                                        : torneo.getNombreCampeon() %>
+                                <%= torneo.getNombreCampeon() == null ? "Sin campeón" : torneo.getNombreCampeon() %>
 
                             </p>
-
                         </div>
-
                         <div class="card-footer bg-white border-0 pb-3">
-
                             <a href="<%= contexto %>/PartidoServlet?accion=ver&amp;torneo_id=<%= torneo.getTorneo_id() %>" class="btn btn-negro w-100">Ver llaves</a>
-
                         </div>
-
                     </div>
-
                 </div>
-
             <% } %>
-
         </div>
-
     <% } %>
-
 </main>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
-
 </html>
